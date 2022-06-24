@@ -52,7 +52,9 @@ module control_unit
             end
 
             DECODE: begin
-                case(operation)
+            
+                case(decoded_instruction)
+
                     I_BRANCH: begin
                         state <= BRANCH;
                     end
