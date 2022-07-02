@@ -24,20 +24,13 @@ module control_unit
     typedef enum logic [3:0] {
         FETCH,
         DECODE,
-        ADD,
-        SUB,
-        AND,
-        OR,
-        BZERO,
-        BNEG,
-        EXEC,
-        LOAD,
-        MOVE,
-        STORE,
         BRANCH,
-        PC,
-        NOP,
-        HALT
+        EXEC,
+        WB,
+        LOAD,
+        WB_LOAD,
+        STORE,
+        W_MEM
     } state_t;
 
     state_t state;
@@ -55,14 +48,14 @@ module control_unit
         case(state)
 
             FETCH: begin
-                ram_write_enable <= 1'b0;
-                addr_sel_s <= 1'b1;
-                c_sel_s <= 1'b0;
-                ir_enable_s <= 1'b1;
-                flags_reg_enable_s <= 1'b0;
-                pc_enable_s <= 1'b0;
-                write_reg_enable_s <= 1'b0;
-                halt <= 1'b0;
+                ram_write_enable <= 1b'0;
+                addr_sel_s <= 1b'1;
+                c_sel_s <= 1b'0;
+                ir_enable_s <= 1b'1;
+                flags_reg_enable_s <= 1b'0;
+                pc_enable_s <= 1b'0;
+                write_reg_enable_s <= 1b'0;
+                halt <= 1b'0;
                 state <= DECODE;
             end
 
@@ -74,31 +67,25 @@ module control_unit
                         state <= BRANCH;
                     end
                     I_BNEG: begin
-                        state <= BNEG;
+                        state <= BRANCH;
                     end
                     I_BZERO: begin
-                        state <= BZERO;
-                    end
-                    I_BNNEG: begin
-                        state <= BNNEG;
-                    end
-                    I_BNZERO: begin
-                        state <= BNZERO;
+                        state <= BRANCH;
                     end
                     I_ADD: begin
-                        state <= ADD;
+                        state <= EXEC;
                     end
                     I_SUB: begin
-                        state <= SUB;
+                        state <= EXEC;
                     end
                     I_AND: begin
-                        state <= AND;
+                        state <= EXEC;
                     end
                     I_OR: begin
-                        state <= OR;
+                        state <= EXEC;
                     end
                     I_MOVE: begin
-                        state <= MOVE;
+                        state <= EXEC;
                     end
                     I_LOAD: begin
                         state <= LOAD;
@@ -106,75 +93,35 @@ module control_unit
                     I_STORE: begin
                         state <= STORE;
                     end
-                    I_NOP: begin
-                        state <= NOP;
-                    end
-                    I_HALT: begin
-                        state <= HALT;
-                    end
-
                 endcase
-
-            end
-
-            ADD: begin
-                operation <= 2'b01;
-                state <= EXEC;
-            end
-
-            SUB: begin
-                operation <= 2'b10;
-                state <= EXEC;
-            end
-
-            AND: begin
-                operation <= 2'b11;
-                state <= EXEC;
-            end
-
-            OR: begin
-                operation <= 2'b00;
-                state <= EXEC;
-            end
-
-            BZERO: begin
-
-            end
-
-            BNEG: begin
-
-            end
-
-            EXEC: begin
-
-            end
-
-            LOAD: begin
-
-            end
-
-            MOVE: begin
-
-            end
-
-            STORE: begin
-
             end
 
             BRANCH: begin
                 state <= FETCH;
             end
 
-            PC: begin
-
+            EXEC: begin
+                state <= WB;
             end
 
-            NOP: begin
-
+            WB: begin
+                state <= FETCH;
             end
 
-            HALT: begin
+            LOAD: begin
+                state <= WB_LOAD;
+            end
 
+            WB_LOAD: begin
+                state <= FETCH;
+            end
+
+            STORE: begin
+                state <= W_MEM;
+            end
+
+            WB_MEM: begin
+                state <= FETCH;
             end
 
         endcase
