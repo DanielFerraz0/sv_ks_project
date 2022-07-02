@@ -48,44 +48,25 @@ module control_unit
         case(state)
 
             FETCH: begin
-                ram_write_enable <= 1b'0;
-                addr_sel_s <= 1b'1;
-                c_sel_s <= 1b'0;
-                ir_enable_s <= 1b'1;
-                flags_reg_enable_s <= 1b'0;
-                pc_enable_s <= 1b'0;
-                write_reg_enable_s <= 1b'0;
-                halt <= 1b'0;
+                ram_write_enable <= 1'b0;
+                addr_sel_s <= 1'b1;
+                c_sel_s <= 1'b0;
+                ir_enable_s <= 1'b1;
+                flags_reg_enable_s <= 1'b0;
+                pc_enable_s <= 1'b0;
+                write_reg_enable_s <= 1'b0;
+                halt <= 1'b0;
                 state <= DECODE;
             end
 
             DECODE: begin
-            
+                ir_enable <= 1'b0;
                 case(decoded_instruction)
-
-                    I_BRANCH: begin
-                        state <= BRANCH;
-                    end
-                    I_BNEG: begin
-                        state <= BRANCH;
-                    end
-                    I_BZERO: begin
-                        state <= BRANCH;
-                    end
-                    I_ADD: begin
-                        state <= EXEC;
-                    end
-                    I_SUB: begin
-                        state <= EXEC;
-                    end
-                    I_AND: begin
-                        state <= EXEC;
-                    end
-                    I_OR: begin
-                        state <= EXEC;
-                    end
-                    I_MOVE: begin
-                        state <= EXEC;
+    
+                    I_NOP: begin
+                        pc_enable <= 1'b1;
+                        addr_sel <= 1'b0;
+                        state <= FETCH;
                     end
                     I_LOAD: begin
                         state <= LOAD;
@@ -93,14 +74,58 @@ module control_unit
                     I_STORE: begin
                         state <= STORE;
                     end
+                    I_MOVE: begin
+                        operation <= 2'b00;
+                        state <= EXEC;
+                    end
+                    I_ADD: begin
+                        operation <= 2'b01;
+                        state <= EXEC;
+                    end
+                    I_SUB: begin
+                        operation <= 2'b10;
+                        state <= EXEC;
+                    end
+                    I_AND: begin
+                        operation <= 2'b11;
+                        state <= EXEC;
+                    end
+                    I_OR: begin
+                        operation <= 2'b00;
+                        state <= EXEC;
+                    end
+                    I_BRANCH: begin
+                        state <= BRANCH;
+                    end
+                    I_BZERO: begin
+
+                        state <= BRANCH;
+                    end
+                    I_BNZERO: begin
+                        state <= BRANCH;
+                    end
+                    I_BNEG: begin
+                        state <= BRANCH;
+                    end
+                    I_BNNEG: begin
+                        state <= BRANCH;
+                    end
+                    I_HALT: begin
+                        halt <= 1'b1;
+                    end
                 endcase
             end
 
             BRANCH: begin
+                branch <=1'b1;
                 state <= FETCH;
             end
 
             EXEC: begin
+                c_sel <= 1'b0;
+                ir_enable <= 1'b0;
+                flags_reg_enable_s <= 1'b1;
+                write_reg_enable_s <= 1'b1;
                 state <= WB;
             end
 
