@@ -30,7 +30,8 @@ module control_unit
         LOAD,
         WB_LOAD,
         STORE,
-        W_MEM
+        W_MEM,
+        PC_EN
     } state_t;
 
     state_t state;
@@ -49,12 +50,12 @@ module control_unit
 
             FETCH: begin
                 ram_write_enable <= 1'b0;
-                addr_sel_s <= 1'b1;
-                c_sel_s <= 1'b0;
-                ir_enable_s <= 1'b1;
-                flags_reg_enable_s <= 1'b0;
-                pc_enable_s <= 1'b0;
-                write_reg_enable_s <= 1'b0;
+                addr_sel <= 1'b1;
+                c_sel <= 1'b0;
+                ir_enable <= 1'b1;
+                flags_reg_enable <= 1'b0;
+                pc_enable <= 1'b0;
+                write_reg_enable <= 1'b0;
                 halt <= 1'b0;
                 state <= DECODE;
             end
@@ -64,9 +65,7 @@ module control_unit
                 case(decoded_instruction)
     
                     I_NOP: begin
-                        pc_enable <= 1'b1;
-                        addr_sel <= 1'b0;
-                        state <= FETCH;
+                        state <= PC_EN;
                     end
                     I_LOAD: begin
                         state <= LOAD;
@@ -98,14 +97,21 @@ module control_unit
                         state <= BRANCH;
                     end
                     I_BZERO: begin
-
-                        state <= BRANCH;
+                        if (zero_op = 1'b1) begin
+                            state <= BRANCH;
+                        end else begin
+                            state <= PC_EN;
+                        end
                     end
                     I_BNZERO: begin
                         state <= BRANCH;
                     end
                     I_BNEG: begin
-                        state <= BRANCH;
+                        if (neg_op = 1'b1) begin
+                            state <= BRANCH;
+                        end else begin
+                            state <= PC_EN;
+                        end
                     end
                     I_BNNEG: begin
                         state <= BRANCH;
@@ -118,7 +124,7 @@ module control_unit
 
             BRANCH: begin
                 branch <=1'b1;
-                state <= FETCH;
+                state <= PC_EN;
             end
 
             EXEC: begin
@@ -130,7 +136,8 @@ module control_unit
             end
 
             WB: begin
-                state <= FETCH;
+                c_sel <= 1'b1;
+                state <= PC_EN;
             end
 
             LOAD: begin
@@ -146,6 +153,12 @@ module control_unit
             end
 
             WB_MEM: begin
+                state <= FETCH;
+            end
+
+            PC_EN: begin
+                pc_enable <= 1'b1;
+                addr_sel <= 1'b0;
                 state <= FETCH;
             end
 
