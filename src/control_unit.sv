@@ -48,6 +48,14 @@ module control_unit
         case(state)
 
             FETCH: begin
+                ram_write_enable <= 1b'0;
+                addr_sel_s <= 1b'1;
+                c_sel_s <= 1b'0;
+                ir_enable_s <= 1b'1;
+                flags_reg_enable_s <= 1b'0;
+                pc_enable_s <= 1b'0;
+                write_reg_enable_s <= 1b'0;
+                halt <= 1b'0;
                 state <= DECODE;
             end
 
