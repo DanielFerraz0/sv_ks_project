@@ -1,6 +1,6 @@
 //control unit
 module control_unit
-    import k_and_s_pkg::*;
+    import k_and_s_pkg::*;              // pinos de entrada e saida do controle
     (
         input  logic                    rst_n,
         input  logic                    clk,
@@ -21,7 +21,7 @@ module control_unit
         output logic                    halt
     );
 
-    typedef enum logic [3:0] {
+    typedef enum logic [3:0] {                  //estados da unidade de controle 
         FETCH,
         DECODE,
         BRANCH,
@@ -37,26 +37,26 @@ module control_unit
     state_t state;
 
     initial begin
-        state <= FETCH;
+        state <= FETCH;                 // inicio da maquina de estados
     end
 
-    always @(posedge clk) begin
+    always @(posedge clk) begin             //loop da maquina
 
         if(rst_n == 0) begin
             state <= FETCH;
         end
 
-        case(state)
+        case(state)             //switch case do estado
 
             FETCH: begin
-                ram_write_enable <= 1'b0;
-                addr_sel <= 1'b1;
-                c_sel <= 1'b0;
-                ir_enable <= 1'b1;
-                flags_reg_enable <= 1'b0;
-                pc_enable <= 1'b0;
-                write_reg_enable <= 1'b0;
-                halt <= 1'b0;
+                ram_write_enable <= 1'b0;  // trava  a memoria
+                addr_sel <= 1'b1;           // seleciona o caminho do pc
+                c_sel <= 1'b0;              // seleciona o caminha da ula
+                ir_enable <= 1'b1;             //habilita o registrador de instruções
+                flags_reg_enable <= 1'b0;       //desativa flags da ula
+                pc_enable <= 1'b0;          //desativa o pc
+                write_reg_enable <= 1'b0;   // desativa o banco de registradores
+                halt <= 1'b0;       
                 state <= DECODE;
             end
 
@@ -74,8 +74,11 @@ module control_unit
                         state <= STORE;
                     end
                     I_MOVE: begin
-                        operation <= 2'b00;
-                        state <= EXEC;
+                        operation <= 2'b00;   // na operação or
+                        flags_reg_enable <= 1'b0; // nao aparece na ula
+                        c_sel <= 1'b0; // resposta da ula
+                        ir_enable <=1'b0; // nega instrução
+                        state <= WB ;
                     end
                     I_ADD: begin
                         operation <= 2'b01;
@@ -130,13 +133,16 @@ module control_unit
             EXEC: begin
                 c_sel <= 1'b0;
                 ir_enable <= 1'b0;
-                flags_reg_enable_s <= 1'b1;
-                write_reg_enable_s <= 1'b1;
+                flags_reg_enable <= 1'b1;
+                write_reg_enable <= 1'b1;
                 state <= WB;
             end
 
             WB: begin
-                c_sel <= 1'b1;
+            if(decoded_instruction <= I_MOVE)begin
+                state <= FETCH;
+                end
+                c_sel <= 1'b0;
                 state <= PC_EN;
             end
 
