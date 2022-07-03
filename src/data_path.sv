@@ -39,6 +39,11 @@ import k_and_s_pkg::*;
     logic [15:0] bus_c;
     logic [15:0] ula_out;
 
+    logic flag_zero;
+    logic flag_neg;
+    logic flag_unsigned;
+    logic flag_signed;
+
     always @(posedge clk) begin
 
         if(ir_enable == 1'b1) begin
@@ -46,7 +51,74 @@ import k_and_s_pkg::*;
         end
     
     end
+    always @(instruction) begin
 
+        case(instruction[15:8])
+            8'b000000000 : begin 
+                decoded_instruction <= I_NOP;
+            end
+            8'b100000010 : begin 
+                decoded_instruction <= I_LOAD;
+                c_addr <= instruction[6:5];
+                mem_addr <= instruction[4:0];
+            end
+            8'b100000100 : begin 
+                decoded_instruction <= I_STORE;
+                a_addr <= instruction[6:5];
+                mem_addr <= instruction[4:0];
+            end
+            8'b100100010 : begin 
+                decoded_instruction <= I_MOVE;
+                a_addr <= instruction[1:0];
+                b_addr <= instruction[1:0];
+                c_addr <= instruction[3:2];
+
+            end
+            8'b101000010 : begin 
+                decoded_instruction <= I_ADD;
+                a_addr <= instruction[1:0];
+                b_addr <= instruction[3:2];
+                c_addr <= instruction[5:4]; 
+            end
+            8'b101000100 : begin 
+                decoded_instruction <= I_SUB;
+                a_addr <= instruction[1:0];
+                b_addr <= instruction[3:2];
+                c_addr <= instruction[5:4];
+            end
+            8'b101000110 : begin 
+                decoded_instruction <= I_AND;
+                a_addr <= instruction[1:0];
+                b_addr <= instruction[3:2];
+                c_addr <= instruction[5:4];
+            end
+            8'b101001000 : begin 
+                decoded_instruction <= I_OR;
+                a_addr <= instruction[1:0];
+                b_addr <= instruction[3:2];
+                c_addr <= instruction[5:4];
+            end
+            8'b000000010 : begin 
+                decoded_instruction <= I_BRANCH;
+                program_counter <= instruction[4:0];
+            end
+            8'b000000100 : begin 
+                decoded_instruction <= I_BZERO;
+            end
+            8'b000010110 : begin 
+                decoded_instruction <= I_BNZERO;
+            end
+            8'b000000110 : begin 
+                decoded_instruction <= I_BNEG;
+            end
+            8'b000010100 : begin 
+            decoded_instruction <= I_BNNEG;
+            end
+            8'b111111111 : begin 
+            decoded_instruction <= I_HALT;
+            end
+        endcase
+    end
 
 
 endmodule : data_path
