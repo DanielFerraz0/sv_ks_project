@@ -259,7 +259,7 @@ import k_and_s_pkg::*;
 
     end
 
-    always @(flags_reg_enable) begin
+    always @(posedge clk) begin
 
         if(flags_reg_enable == 1'b1) begin
             zero_op <= flag_zero;
@@ -295,5 +295,14 @@ import k_and_s_pkg::*;
 
     end
 
-    
+    always @(posedge clk) begin
+
+        if(pc_enable == 1'b1) begin
+            program_counter <= branch_out;
+        end else if(rst_n == 1'b0) begin
+            program_counter <= 5'b00000;
+        end
+        
+    end
+
 endmodule : data_path
