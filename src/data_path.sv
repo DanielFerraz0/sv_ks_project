@@ -249,7 +249,7 @@ import k_and_s_pkg::*;
         end        
     end
 
-    always @(c_sel) begin
+    always @(c_sel) begin // MUX C_SEL
 
         if(c_sel ==1'b1)begin
             bus_c <= data_in;
@@ -259,7 +259,7 @@ import k_and_s_pkg::*;
 
     end
 
-    always @(posedge clk) begin
+    always @(posedge clk) begin // FLAG REG
 
         if(flags_reg_enable == 1'b1) begin
             zero_op <= flag_zero;
@@ -275,17 +275,7 @@ import k_and_s_pkg::*;
 
     end
 
-    always @(addr_sel) begin
-    
-        if(addr_sel == 1'b1) begin
-            ram_addr <= program_counter;
-        end else begin
-            ram_addr <= mem_addr;
-        end
-
-    end
-
-    always @(branch) begin
+    always @(branch) begin // MUX BRANCH
 
         if(branch == 1'b1) begin
             branch_out <= mem_addr;
@@ -295,14 +285,24 @@ import k_and_s_pkg::*;
 
     end
 
-    always @(posedge clk) begin
+    always @(posedge clk) begin // PC
 
         if(pc_enable == 1'b1) begin
             program_counter <= branch_out;
         end else if(rst_n == 1'b0) begin
             program_counter <= 5'b00000;
         end
-        
+
+    end
+
+    always @(addr_sel) begin  // MUX ADDR_SEL
+    
+        if(addr_sel == 1'b1) begin
+            ram_addr <= program_counter;
+        end else begin
+            ram_addr <= mem_addr;
+        end
+
     end
 
 endmodule : data_path
