@@ -55,7 +55,7 @@ import k_and_s_pkg::*;
     always @(instruction) begin // Decodificador
 
         case(instruction[15:8])
-        
+
             8'b000000000 : begin 
                 decoded_instruction <= I_NOP;
             end
@@ -188,8 +188,10 @@ import k_and_s_pkg::*;
     end
 
 
-    always @(operation,bus_a,bus_b) begin   // ULA
+    always @(operation, bus_a, bus_b) begin   // ULA
+
         case(operation) begin
+        
             2'b00: begin
                 ula_out <= bus_a | bus_b;
             end
@@ -217,13 +219,32 @@ import k_and_s_pkg::*;
             flag_neg <= 1'b0;
         end
 
-        if(operation == 2'b01) begin
-            if((bus_a[15]==1'b1 AND bus_b[15]==1'b1) AND ula_out[15]== 1'b0) begin
-                flag_signed <=1'b1;
-            end else if((bus_a[15]==1'b0 AND bus_b[15]==1'b0) AND ula_out[15]== 1'b1) begin
-                flag_signed <=1'b1;
-            end else if((bus_a[15]==1'b1 AND bus_b[15]==1'b1) AND ula_out[15]== 1'b0)
-        end 
+        if(operation == 2'b01) begin // Adição
+
+            if((bus_a[15] == 1'b1 AND bus_b[15] == 1'b1) AND ula_out[15] == 1'b0) begin
+                flag_signed <= 'b1;
+            end else if((bus_a[15]==1'b0 AND bus_b[15]==1'b0) AND ula_out[15] == 1'b1) begin
+                flag_signed <= 1'b1;
+            end else if (bus_a[15] == 1'b0 AND bus_b[15] == 1'b1) AND (bus_a >= (NOT bus_b) - 1'b1) begin
+                flag_unsigned <= 1'b1;              
+            end else if (bus_a[15] == 1'b1 AND bus_b[15] == 1'b0) AND (bus_b >= (NOT bus_a) - 1'b1) begin
+                flag_unsigned <= 1'b1;
+            end else if (bus_a[15] == 1'b1 AND bus_b[15] == 1'b1) begin
+                flag_unsigned <= 1'b1; 
+            end   
+
+        end else if (operation == 2'b10) begin // Subtração
+
+            if(bus_a[15] == 1'b0 AND bus_b[15] == 1'b1) AND ula_out[15] == 1'b1 begin 
+                signed_overflow_flag <= 1'b1;
+            end else if ((bus_a[15] == 1'b1 AND bus_b[15] == 1'b0) AND ula_out[15] == 1'b0) begin  
+                signed_overflow_flag <= 1'b1;
+            end else if ((bus_a[15] == 1'b1 AND bus_b[15] == 1'b1) AND ((NOT bus_a) - 1'b1 <= (NOT bus_b)- 1'b1)) begin
+                unsigned_overflow_flag <= 1'b1; 
+            end else if (bus_a[15] == 1'b1 AND bus_b[15] == 1b'0) begin
+                unsigned_overflow_flag <= 1'b1;
+            end
+        end
         
 
 
