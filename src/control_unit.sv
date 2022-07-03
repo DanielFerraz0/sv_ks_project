@@ -1,6 +1,6 @@
 //control unit
 module control_unit
-    import k_and_s_pkg::*;              // pinos de entrada e saida do controle
+    import k_and_s_pkg::*;  // Pinos de entrada e saida do controle
     (
         input  logic                    rst_n,
         input  logic                    clk,
@@ -21,7 +21,7 @@ module control_unit
         output logic                    halt
     );
 
-    typedef enum logic [3:0] {                  //estados da unidade de controle 
+    typedef enum logic [3:0] {   // Estados da unidade de controle 
         FETCH,
         DECODE,
         BRANCH,
@@ -37,26 +37,27 @@ module control_unit
     state_t state;
 
     initial begin
-        state <= FETCH;                 // inicio da maquina de estados
+        state <= FETCH;  // Inicio da maquina de estados
     end
 
-    always @(posedge clk) begin             //loop da maquina
+    always @(posedge clk) begin  //Loop da maquina
 
         if(rst_n == 0) begin
             state <= FETCH;
         end
 
-        case(state)             //switch case do estado
+        case(state) //Switch case do estado
 
             FETCH: begin
-                ram_write_enable <= 1'b0;  // trava  a memoria
-                addr_sel <= 1'b1;           // seleciona o caminho do pc
-                c_sel <= 1'b0;              // seleciona o caminha da ula
-                ir_enable <= 1'b1;             //habilita o registrador de instruções
-                flags_reg_enable <= 1'b0;       //desativa flags da ula
-                pc_enable <= 1'b0;          //desativa o pc
-                write_reg_enable <= 1'b0;   // desativa o banco de registradores
-                halt <= 1'b0;       
+                addr_sel <= 1'b1;          // Seleciona o caminho do pc
+                ir_enable <= 1'b1;         // Habilita o registrador de instruções
+                ram_write_enable <= 1'b0;  // Trava  a memoria
+                c_sel <= 1'b0;             // Seleciona o caminha da ula
+                flags_reg_enable <= 1'b0;  // Desativa flags da ula
+                pc_enable <= 1'b0;         // Desativa o pc
+                branch <= 1'b0;            // Desativa o desvio
+                write_reg_enable <= 1'b0;  // Desativa o banco de registradores
+                halt <= 1'b0;              // Desativa o halt
                 state <= DECODE;
             end
 
@@ -74,11 +75,8 @@ module control_unit
                         state <= STORE;
                     end
                     I_MOVE: begin
-                        operation <= 2'b00;   // na operação or
-                        flags_reg_enable <= 1'b0; // nao aparece na ula
-                        c_sel <= 1'b0; // resposta da ula
-                        ir_enable <=1'b0; // nega instrução
-                        state <= WB ;
+                        operation <= 2'b00;
+                        state <= EXEC;
                     end
                     I_ADD: begin
                         operation <= 2'b01;
@@ -100,24 +98,32 @@ module control_unit
                         state <= BRANCH;
                     end
                     I_BZERO: begin
-                        if (zero_op = 1'b1) begin
+                        if (zero_op == 1'b1) begin
                             state <= BRANCH;
                         end else begin
                             state <= PC_EN;
                         end
                     end
                     I_BNZERO: begin
-                        state <= BRANCH;
+                        if (zero_op == 1'b0) begin
+                            state <= BRANCH;
+                        end else begin
+                            state <= PC_EN;
+                        end
                     end
                     I_BNEG: begin
-                        if (neg_op = 1'b1) begin
+                        if (neg_op == 1'b1) begin
                             state <= BRANCH;
                         end else begin
                             state <= PC_EN;
                         end
                     end
                     I_BNNEG: begin
-                        state <= BRANCH;
+                        if (neg_op == 1'b0) begin
+                            state <= BRANCH;
+                        end else begin
+                            state <= PC_EN;
+                        end 
                     end
                     I_HALT: begin
                         halt <= 1'b1;
@@ -131,40 +137,44 @@ module control_unit
             end
 
             EXEC: begin
-                c_sel <= 1'b0;
-                ir_enable <= 1'b0;
-                flags_reg_enable <= 1'b1;
-                write_reg_enable <= 1'b1;
+                if(decoded_instruction == I_MOVE) begin
+                    flags_reg_enable <= 1'b0;
+                end else begin
+                    flags_reg_enable <= 1'b1;
+                end
                 state <= WB;
             end
 
             WB: begin
-            if(decoded_instruction <= I_MOVE)begin
-                state <= FETCH;
-                end
                 c_sel <= 1'b0;
+                write_reg_enable <= 1'b1;
                 state <= PC_EN;
             end
 
             LOAD: begin
+                addr_sel <= 1'b0;  
                 state <= WB_LOAD;
             end
 
             WB_LOAD: begin
-                state <= FETCH;
+                c_sel <= 1'b1;
+                write_reg_enable <= 1'b1;
+                state <= PC_EN;
             end
 
             STORE: begin
+                addr_sel <= 1'b0;
                 state <= W_MEM;
             end
 
-            WB_MEM: begin
-                state <= FETCH;
+            W_MEM: begin
+                ram_write_enable <= 1'b1;
+                state <= PC_EN;
             end
 
             PC_EN: begin
                 pc_enable <= 1'b1;
-                addr_sel <= 1'b0;
+                addr_sel <= 1'b1;
                 state <= FETCH;
             end
 
