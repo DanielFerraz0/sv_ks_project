@@ -187,4 +187,46 @@ import k_and_s_pkg::*;
 
     end
 
+
+    always @(operation,bus_a,bus_b) begin   // ULA
+        case(operation) begin
+            2'b00: begin
+                ula_out <= bus_a | bus_b;
+            end
+            2'b01: begin
+                ula_out <= bus_a + bus_b;
+            end
+            2'b10: begin
+                ula_out <= bus_a - bus_b;
+            end
+            2'b11: begin
+                ula_out <= bus_a & bus_b;
+            end
+
+        endcase
+        
+        if(ula_out[15:0]== 'b0)begin
+            flag_zero <= 1'b1;
+        end else begin
+            flag_zero <= 1'b0;
+        end
+
+        if(ula_out[15]== 1'b1)begin
+            flag_neg <= 1'b1;
+        end else begin
+            flag_neg <= 1'b0;
+        end
+
+        if(operation == 2'b01) begin
+            if((bus_a[15]==1'b1 AND bus_b[15]==1'b1) AND ula_out[15]== 1'b0) begin
+                flag_signed <=1'b1;
+            end else if((bus_a[15]==1'b0 AND bus_b[15]==1'b0) AND ula_out[15]== 1'b1) begin
+                flag_signed <=1'b1;
+            end else if((bus_a[15]==1'b1 AND bus_b[15]==1'b1) AND ula_out[15]== 1'b0)
+        end 
+        
+
+
+    end
+
 endmodule : data_path
