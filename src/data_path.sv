@@ -44,7 +44,7 @@ import k_and_s_pkg::*;
     logic flag_unsigned;
     logic flag_signed;
 
-    always @(posedge clk) begin
+    always @(posedge clk) begin // Registrador de instruções
 
         if(ir_enable == 1'b1) begin
             instruction <= data_in;
@@ -52,9 +52,10 @@ import k_and_s_pkg::*;
     
     end
 
-    always @(instruction) begin
+    always @(instruction) begin // Decodificador
 
         case(instruction[15:8])
+        
             8'b000000000 : begin 
                 decoded_instruction <= I_NOP;
             end
@@ -125,5 +126,65 @@ import k_and_s_pkg::*;
         endcase
     end
 
+    always @(posedge clk) begin // Banco de registradores
+
+        case (a_addr) begin
+
+            2'b00: begin
+                r0 <= bus_a;
+            end
+            2'b01: begin
+                r1 <= bus_a;
+            end
+            2'b10: begin
+                r2 <= bus_a;
+            end
+            2'b11: begin
+                r3 <= bus_a;
+            end
+
+        endcase
+
+        data_out <= bus_a;
+
+        case (b_addr) begin
+
+            2'b00: begin
+                r0 <= bus_b;
+            end
+            2'b01: begin
+                r1 <= bus_b;
+            end
+            2'b10: begin
+                r2 <= bus_b;
+            end
+            2'b11: begin
+                r3 <= bus_b;
+            end
+
+        endcase
+
+        if(write_reg_enable == 1'b1) begin
+
+            case (c_addr) begin
+
+                2'b00: begin
+                    r0 <= bus_c;
+                end
+                2'b01: begin
+                    r1 <= bus_c;
+                end
+                2'b10: begin
+                    r2 <= bus_c;
+                end
+                2'b11: begin
+                    r3 <= bus_c;
+                end
+
+            endcase
+
+        end
+
+    end
 
 endmodule : data_path
