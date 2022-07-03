@@ -244,10 +244,18 @@ import k_and_s_pkg::*;
             end else if (bus_a[15] == 1'b1 AND bus_b[15] == 1b'0) begin
                 unsigned_overflow_flag <= 1'b1;
             end
-        end
-        
-
-
+        end        
     end
+
+    always @(c_sel) begin
+        if(c_sel ==1'b1)begin
+            bus_c <= data_in;
+        end else begin
+            bus_c <= ula_out;
+        end
+    end
+
+
+
 
 endmodule : data_path
