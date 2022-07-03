@@ -21,6 +21,7 @@ import k_and_s_pkg::*;
     input  logic             [15:0] data_in
 
 );
+    logic [4:0] branch_out;
     logic [4:0] program_counter;
     logic [4:0] mem_addr;
     logic [15:0] instruction;
@@ -284,4 +285,15 @@ import k_and_s_pkg::*;
 
     end
 
+    always @(branch) begin
+
+        if(branch == 1'b1) begin
+            branch_out <= mem_addr;
+        end else begin
+            branch_out <= (program_counter + 1'b1);
+        end
+
+    end
+
+    
 endmodule : data_path
