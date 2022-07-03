@@ -21,10 +21,32 @@ import k_and_s_pkg::*;
     input  logic             [15:0] data_in
 
 );
+    logic [4:0] program_counter;
+    logic [4:0] mem_addr;
+    logic [15:0] instruction;
 
-// added to remove warning from testbench
-// remove it
-assign ram_addr = 'd0;
-// remove 
+    logic [1:0] a_addr;
+    logic [1:0] b_addr;
+    logic [1:0] c_addr;
+
+    logic [15:0] r0;
+    logic [15:0] r1;
+    logic [15:0] r2;
+    logic [15:0] r3;
+
+    logic [15:0] bus_a;
+    logic [15:0] bus_b;
+    logic [15:0] bus_c;
+    logic [15:0] ula_out;
+
+    always @(posedge clk) begin
+
+        if(ir_enable == 1'b1) begin
+            instruction <= data_in;
+        end
+    
+    end
+
+
 
 endmodule : data_path

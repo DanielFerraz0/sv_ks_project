@@ -40,13 +40,13 @@ module control_unit
         state <= FETCH;  // Inicio da maquina de estados
     end
 
-    always @(posedge clk) begin  //Loop da maquina
+    always @(posedge clk) begin  // Loop da maquina
 
         if(rst_n == 0) begin
             state <= FETCH;
         end
 
-        case(state) //Switch case do estado
+        case(state) // Switch case do estado
 
             FETCH: begin
                 addr_sel <= 1'b1;          // Seleciona o caminho do pc
