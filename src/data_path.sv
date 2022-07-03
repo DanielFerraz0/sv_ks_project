@@ -274,6 +274,14 @@ import k_and_s_pkg::*;
 
     end
 
+    always @(addr_sel) begin
+    
+        if(addr_sel == 1'b1) begin
+            ram_addr <= program_counter;
+        end else begin
+            ram_addr <= mem_addr;
+        end
 
+    end
 
 endmodule : data_path
