@@ -51,6 +51,7 @@ import k_and_s_pkg::*;
         end
     
     end
+
     always @(instruction) begin
 
         case(instruction[15:8])
@@ -100,22 +101,26 @@ import k_and_s_pkg::*;
             end
             8'b000000010 : begin 
                 decoded_instruction <= I_BRANCH;
-                program_counter <= instruction[4:0];
+                mem_addr <= instruction[4:0];
             end
             8'b000000100 : begin 
                 decoded_instruction <= I_BZERO;
+                mem_addr <= instruction[4:0];
             end
             8'b000010110 : begin 
                 decoded_instruction <= I_BNZERO;
+                mem_addr <= instruction[4:0];
             end
             8'b000000110 : begin 
                 decoded_instruction <= I_BNEG;
+                mem_addr <= instruction[4:0];
             end
             8'b000010100 : begin 
-            decoded_instruction <= I_BNNEG;
+                decoded_instruction <= I_BNNEG;
+                mem_addr <= instruction[4:0];
             end
             8'b111111111 : begin 
-            decoded_instruction <= I_HALT;
+                decoded_instruction <= I_HALT;
             end
         endcase
     end
