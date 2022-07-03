@@ -123,7 +123,9 @@ import k_and_s_pkg::*;
             8'b111111111 : begin 
                 decoded_instruction <= I_HALT;
             end
+
         endcase
+
     end
 
     always @(posedge clk) begin // Banco de registradores
@@ -187,11 +189,10 @@ import k_and_s_pkg::*;
 
     end
 
-
     always @(operation, bus_a, bus_b) begin   // ULA
 
         case(operation) begin
-        
+
             2'b00: begin
                 ula_out <= bus_a | bus_b;
             end
@@ -236,25 +237,42 @@ import k_and_s_pkg::*;
         end else if (operation == 2'b10) begin // Subtração
 
             if(bus_a[15] == 1'b0 AND bus_b[15] == 1'b1) AND ula_out[15] == 1'b1 begin 
-                signed_overflow_flag <= 1'b1;
+                flag_signed <= 1'b1;
             end else if ((bus_a[15] == 1'b1 AND bus_b[15] == 1'b0) AND ula_out[15] == 1'b0) begin  
-                signed_overflow_flag <= 1'b1;
+                flag_signed <= 1'b1;
             end else if ((bus_a[15] == 1'b1 AND bus_b[15] == 1'b1) AND ((NOT bus_a) - 1'b1 <= (NOT bus_b)- 1'b1)) begin
-                unsigned_overflow_flag <= 1'b1; 
+                flag_unsigned <= 1'b1; 
             end else if (bus_a[15] == 1'b1 AND bus_b[15] == 1b'0) begin
-                unsigned_overflow_flag <= 1'b1;
+                flag_unsigned <= 1'b1;
             end
         end        
     end
 
     always @(c_sel) begin
+
         if(c_sel ==1'b1)begin
             bus_c <= data_in;
         end else begin
             bus_c <= ula_out;
         end
+
     end
 
+    always @(flags_reg_enable) begin
+
+        if(flags_reg_enable == 1'b1) begin
+            zero_op <= flag_zero;
+            neg_op <= flag_neg;
+            signed_overflow <= flag_signed;
+            unsigned_overflow <= flag_unsigned;
+        end else begin
+            zero_op <= 1'b0;
+            neg_op <= 1'b0;
+            signed_overflow <= 1'b0;
+            unsigned_overflow <= 1'b0;
+        end
+
+    end
 
 
 
