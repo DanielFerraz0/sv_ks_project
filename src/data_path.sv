@@ -45,7 +45,7 @@ import k_and_s_pkg::*;
     logic flag_unsigned;
     logic flag_signed;
 
-    always @(posedge clk) begin // Registrador de instruções
+    always @(posedge clk) begin // Registrador de instru��es
 
         if(ir_enable == 1'b1) begin
             instruction <= data_in;
@@ -221,7 +221,7 @@ import k_and_s_pkg::*;
             flag_neg <= 1'b0;
         end
 
-        if(operation == 2'b01) begin // Adição
+        if(operation == 2'b01) begin // Adi��o
 
             if((bus_a[15] == 1'b1 && bus_b[15] == 1'b1) && ula_out[15] == 1'b0) begin
                 flag_signed <= 'b1;
@@ -235,15 +235,15 @@ import k_and_s_pkg::*;
                 flag_unsigned <= 1'b1; 
             end   
 
-        end else if (operation == 2'b10) begin // Subtração
+        end else if (operation == 2'b10) begin // Subtra��o
 
-            if(bus_a[15] == 1'b0 && bus_b[15] == 1'b1) && ula_out[15] == 1'b1 begin 
+            if((bus_a[15] == 1'b0 && bus_b[15] == 1'b1) && ula_out[15] == 1'b1) begin 
                 flag_signed <= 1'b1;
             end else if ((bus_a[15] == 1'b1 && bus_b[15] == 1'b0) && ula_out[15] == 1'b0) begin  
                 flag_signed <= 1'b1;
             end else if ((bus_a[15] == 1'b1 && bus_b[15] == 1'b1) && ((~bus_a) - 1'b1 <= (~bus_b)- 1'b1)) begin
                 flag_unsigned <= 1'b1; 
-            end else if (bus_a[15] == 1'b1 && bus_b[15] == 1b'0) begin
+            end else if (bus_a[15] == 1'b1 && bus_b[15] == 1'b0) begin
                 flag_unsigned <= 1'b1;
             end
         end        
