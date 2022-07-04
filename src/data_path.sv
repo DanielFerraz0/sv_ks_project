@@ -131,7 +131,7 @@ import k_and_s_pkg::*;
 
     always @(posedge clk) begin // Banco de registradores
 
-        case (a_addr) begin
+        case (a_addr)
 
             2'b00: begin
                 r0 <= bus_a;
@@ -150,7 +150,7 @@ import k_and_s_pkg::*;
 
         data_out <= bus_a;
 
-        case (b_addr) begin
+        case (b_addr)
 
             2'b00: begin
                 r0 <= bus_b;
@@ -169,7 +169,7 @@ import k_and_s_pkg::*;
 
         if(write_reg_enable == 1'b1) begin
 
-            case (c_addr) begin
+            case (c_addr)
 
                 2'b00: begin
                     r0 <= bus_c;
@@ -192,7 +192,7 @@ import k_and_s_pkg::*;
 
     always @(operation, bus_a, bus_b) begin   // ULA
 
-        case(operation) begin
+        case(operation)
 
             2'b00: begin
                 ula_out <= bus_a | bus_b;
