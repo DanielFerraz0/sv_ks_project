@@ -31,7 +31,8 @@ module control_unit
         WB_LOAD,
         STORE,
         W_MEM,
-        PC_EN
+        PC_EN,
+        HALT
     } state_t;
 
     state_t state;
@@ -51,11 +52,11 @@ module control_unit
             FETCH: begin
                 addr_sel <= 1'b1;          // Seleciona o caminho do pc
                 ir_enable <= 1'b1;         // Habilita o registrador de instruções
+                branch <= 1'b0;            // Desativa o desvio
+                pc_enable <= 1'b0;         // Desativa o pc
                 ram_write_enable <= 1'b0;  // Trava  a memoria
                 c_sel <= 1'b0;             // Seleciona o caminha da ula
                 flags_reg_enable <= 1'b0;  // Desativa flags da ula
-                pc_enable <= 1'b0;         // Desativa o pc
-                branch <= 1'b0;            // Desativa o desvio
                 write_reg_enable <= 1'b0;  // Desativa o banco de registradores
                 halt <= 1'b0;              // Desativa o halt
                 state <= DECODE;
@@ -126,7 +127,7 @@ module control_unit
                         end 
                     end
                     I_HALT: begin
-                        halt <= 1'b1;
+                        state <= HALT;
                     end
                 endcase
             end
@@ -172,9 +173,20 @@ module control_unit
                 state <= PC_EN;
             end
 
+            HALT: begin
+                pc_enable <= 1'b0;
+                flags_reg_enable <= 1'b0;
+                ir_enable <= 1'b0;
+                halt <= 1'b1;
+                state <= HALT;
+            end
+
             PC_EN: begin
+                branch <= 1'b0;
                 pc_enable <= 1'b1;
                 addr_sel <= 1'b1;
+                c_sel <= 1'b0;
+                write_reg_enable <= 1'b0;
                 state <= FETCH;
             end
 
