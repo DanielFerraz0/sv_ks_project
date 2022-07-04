@@ -223,27 +223,27 @@ import k_and_s_pkg::*;
 
         if(operation == 2'b01) begin // Adição
 
-            if((bus_a[15] == 1'b1 AND bus_b[15] == 1'b1) AND ula_out[15] == 1'b0) begin
+            if((bus_a[15] == 1'b1 && bus_b[15] == 1'b1) && ula_out[15] == 1'b0) begin
                 flag_signed <= 'b1;
-            end else if((bus_a[15]==1'b0 AND bus_b[15]==1'b0) AND ula_out[15] == 1'b1) begin
+            end else if((bus_a[15]==1'b0 && bus_b[15]==1'b0) && ula_out[15] == 1'b1) begin
                 flag_signed <= 1'b1;
-            end else if (bus_a[15] == 1'b0 AND bus_b[15] == 1'b1) AND (bus_a >= (NOT bus_b) - 1'b1) begin
+            end else if ((bus_a[15] == 1'b0 && bus_b[15] == 1'b1) && (bus_a >= (~bus_b) - 1'b1)) begin
                 flag_unsigned <= 1'b1;              
-            end else if (bus_a[15] == 1'b1 AND bus_b[15] == 1'b0) AND (bus_b >= (NOT bus_a) - 1'b1) begin
+            end else if ((bus_a[15] == 1'b1 && bus_b[15] == 1'b0) && (bus_b >= (~bus_a) - 1'b1)) begin
                 flag_unsigned <= 1'b1;
-            end else if (bus_a[15] == 1'b1 AND bus_b[15] == 1'b1) begin
+            end else if (bus_a[15] == 1'b1 && bus_b[15] == 1'b1) begin
                 flag_unsigned <= 1'b1; 
             end   
 
         end else if (operation == 2'b10) begin // Subtração
 
-            if(bus_a[15] == 1'b0 AND bus_b[15] == 1'b1) AND ula_out[15] == 1'b1 begin 
+            if(bus_a[15] == 1'b0 && bus_b[15] == 1'b1) && ula_out[15] == 1'b1 begin 
                 flag_signed <= 1'b1;
-            end else if ((bus_a[15] == 1'b1 AND bus_b[15] == 1'b0) AND ula_out[15] == 1'b0) begin  
+            end else if ((bus_a[15] == 1'b1 && bus_b[15] == 1'b0) && ula_out[15] == 1'b0) begin  
                 flag_signed <= 1'b1;
-            end else if ((bus_a[15] == 1'b1 AND bus_b[15] == 1'b1) AND ((NOT bus_a) - 1'b1 <= (NOT bus_b)- 1'b1)) begin
+            end else if ((bus_a[15] == 1'b1 && bus_b[15] == 1'b1) && ((~bus_a) - 1'b1 <= (~bus_b)- 1'b1)) begin
                 flag_unsigned <= 1'b1; 
-            end else if (bus_a[15] == 1'b1 AND bus_b[15] == 1b'0) begin
+            end else if (bus_a[15] == 1'b1 && bus_b[15] == 1b'0) begin
                 flag_unsigned <= 1'b1;
             end
         end        
