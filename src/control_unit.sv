@@ -4,6 +4,10 @@
 //      Daniel Ferraz Tavares Jr.
 //      Wesley Santos de Souza Reis
 
+// Comentário:
+//      Não conseguimos rodar o projeto direito, os testes falharam.
+//      Tentamos identificar o erro mas não o encontramos.
+
 module control_unit
     import k_and_s_pkg::*;  // Pinos de entrada e saida do controle
     (
