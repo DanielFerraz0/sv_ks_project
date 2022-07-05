@@ -1,4 +1,9 @@
 //control unit
+
+// Alunos: 
+//      Daniel Ferraz Tavares Jr.
+//      Wesley Santos de Souza Reis
+
 module control_unit
     import k_and_s_pkg::*;  // Pinos de entrada e saida do controle
     (
