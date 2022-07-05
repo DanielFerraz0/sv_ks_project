@@ -21,6 +21,7 @@ import k_and_s_pkg::*;
     input  logic             [15:0] data_in
 
 );
+
     logic [4:0] branch_out;
     logic [4:0] program_counter;
     logic [4:0] mem_addr;
@@ -45,7 +46,7 @@ import k_and_s_pkg::*;
     logic flag_unsigned;
     logic flag_signed;
 
-    always @(posedge clk) begin // Registrador de instruções
+    always @(posedge clk) begin // Registrador de instru??es
 
         if(ir_enable == 1'b1) begin
             instruction <= data_in;
@@ -57,71 +58,71 @@ import k_and_s_pkg::*;
 
         case(instruction[15:8])
 
-            8'b000000000 : begin 
+            8'b00000000: begin 
                 decoded_instruction <= I_NOP;
             end
-            8'b100000010 : begin 
+            8'b10000001: begin 
                 decoded_instruction <= I_LOAD;
                 c_addr <= instruction[6:5];
                 mem_addr <= instruction[4:0];
             end
-            8'b100000100 : begin 
+            8'b10000010: begin 
                 decoded_instruction <= I_STORE;
                 a_addr <= instruction[6:5];
                 mem_addr <= instruction[4:0];
             end
-            8'b100100010 : begin 
+            8'b10010001: begin 
                 decoded_instruction <= I_MOVE;
                 a_addr <= instruction[1:0];
                 b_addr <= instruction[1:0];
                 c_addr <= instruction[3:2];
 
             end
-            8'b101000010 : begin 
+            8'b10100001: begin 
                 decoded_instruction <= I_ADD;
                 a_addr <= instruction[1:0];
                 b_addr <= instruction[3:2];
                 c_addr <= instruction[5:4]; 
             end
-            8'b101000100 : begin 
+            8'b10100010: begin 
                 decoded_instruction <= I_SUB;
                 a_addr <= instruction[1:0];
                 b_addr <= instruction[3:2];
                 c_addr <= instruction[5:4];
             end
-            8'b101000110 : begin 
+            8'b10100011: begin 
                 decoded_instruction <= I_AND;
                 a_addr <= instruction[1:0];
                 b_addr <= instruction[3:2];
                 c_addr <= instruction[5:4];
             end
-            8'b101001000 : begin 
+            8'b10100100: begin 
                 decoded_instruction <= I_OR;
                 a_addr <= instruction[1:0];
                 b_addr <= instruction[3:2];
                 c_addr <= instruction[5:4];
             end
-            8'b000000010 : begin 
+            8'b00000001: begin 
                 decoded_instruction <= I_BRANCH;
                 mem_addr <= instruction[4:0];
             end
-            8'b000000100 : begin 
+            8'b00000010: begin 
                 decoded_instruction <= I_BZERO;
                 mem_addr <= instruction[4:0];
             end
-            8'b000010110 : begin 
+            8'b00001011: begin 
                 decoded_instruction <= I_BNZERO;
                 mem_addr <= instruction[4:0];
             end
-            8'b000000110 : begin 
+            8'b00000011: begin 
                 decoded_instruction <= I_BNEG;
                 mem_addr <= instruction[4:0];
             end
-            8'b000010100 : begin 
+            8'b00001010: begin 
                 decoded_instruction <= I_BNNEG;
                 mem_addr <= instruction[4:0];
             end
-            8'b111111111 : begin 
+            8'b11111111: begin 
                 decoded_instruction <= I_HALT;
             end
 
@@ -131,45 +132,52 @@ import k_and_s_pkg::*;
 
     always @(posedge clk) begin // Banco de registradores
 
-        case (a_addr) begin
+        if(rst_n == 1'b0) begin
+            r0 = 15'b000000000000000;
+            r1 = 15'b000000000000000;
+            r2 = 15'b000000000000000;
+            r3 = 15'b000000000000000;
+        end
+
+        case (a_addr)
 
             2'b00: begin
-                r0 <= bus_a;
+                bus_a <= r0;
             end
             2'b01: begin
-                r1 <= bus_a;
+                bus_a <= r1;
             end
             2'b10: begin
-                r2 <= bus_a;
+                bus_a <= r2;
             end
             2'b11: begin
-                r3 <= bus_a;
+                bus_a <= r3;
             end
 
         endcase
 
         data_out <= bus_a;
 
-        case (b_addr) begin
+        case (b_addr)
 
             2'b00: begin
-                r0 <= bus_b;
+                bus_b <= r0;
             end
             2'b01: begin
-                r1 <= bus_b;
+                bus_b <= r1;
             end
             2'b10: begin
-                r2 <= bus_b;
+                bus_b <= r2;
             end
             2'b11: begin
-                r3 <= bus_b;
+                bus_b <= r3;
             end
 
         endcase
 
         if(write_reg_enable == 1'b1) begin
 
-            case (c_addr) begin
+            case (c_addr)
 
                 2'b00: begin
                     r0 <= bus_c;
@@ -192,7 +200,7 @@ import k_and_s_pkg::*;
 
     always @(operation, bus_a, bus_b) begin   // ULA
 
-        case(operation) begin
+        case(operation)
 
             2'b00: begin
                 ula_out <= bus_a | bus_b;
@@ -221,35 +229,35 @@ import k_and_s_pkg::*;
             flag_neg <= 1'b0;
         end
 
-        if(operation == 2'b01) begin // Adição
+        if(operation == 2'b01) begin // Adi??o
 
-            if((bus_a[15] == 1'b1 AND bus_b[15] == 1'b1) AND ula_out[15] == 1'b0) begin
+            if((bus_a[15] == 1'b1 && bus_b[15] == 1'b1) && ula_out[15] == 1'b0) begin
                 flag_signed <= 'b1;
-            end else if((bus_a[15]==1'b0 AND bus_b[15]==1'b0) AND ula_out[15] == 1'b1) begin
+            end else if((bus_a[15]==1'b0 && bus_b[15]==1'b0) && ula_out[15] == 1'b1) begin
                 flag_signed <= 1'b1;
-            end else if (bus_a[15] == 1'b0 AND bus_b[15] == 1'b1) AND (bus_a >= (NOT bus_b) - 1'b1) begin
+            end else if ((bus_a[15] == 1'b0 && bus_b[15] == 1'b1) && (bus_a >= (~bus_b) - 1'b1)) begin
                 flag_unsigned <= 1'b1;              
-            end else if (bus_a[15] == 1'b1 AND bus_b[15] == 1'b0) AND (bus_b >= (NOT bus_a) - 1'b1) begin
+            end else if ((bus_a[15] == 1'b1 && bus_b[15] == 1'b0) && (bus_b >= (~bus_a) - 1'b1)) begin
                 flag_unsigned <= 1'b1;
-            end else if (bus_a[15] == 1'b1 AND bus_b[15] == 1'b1) begin
+            end else if (bus_a[15] == 1'b1 && bus_b[15] == 1'b1) begin
                 flag_unsigned <= 1'b1; 
             end   
 
-        end else if (operation == 2'b10) begin // Subtração
+        end else if (operation == 2'b10) begin // Subtra??o
 
-            if(bus_a[15] == 1'b0 AND bus_b[15] == 1'b1) AND ula_out[15] == 1'b1 begin 
+            if((bus_a[15] == 1'b0 && bus_b[15] == 1'b1) && ula_out[15] == 1'b1) begin 
                 flag_signed <= 1'b1;
-            end else if ((bus_a[15] == 1'b1 AND bus_b[15] == 1'b0) AND ula_out[15] == 1'b0) begin  
+            end else if ((bus_a[15] == 1'b1 && bus_b[15] == 1'b0) && ula_out[15] == 1'b0) begin  
                 flag_signed <= 1'b1;
-            end else if ((bus_a[15] == 1'b1 AND bus_b[15] == 1'b1) AND ((NOT bus_a) - 1'b1 <= (NOT bus_b)- 1'b1)) begin
+            end else if ((bus_a[15] == 1'b1 && bus_b[15] == 1'b1) && ((~bus_a) - 1'b1 <= (~bus_b)- 1'b1)) begin
                 flag_unsigned <= 1'b1; 
-            end else if (bus_a[15] == 1'b1 AND bus_b[15] == 1b'0) begin
+            end else if (bus_a[15] == 1'b1 && bus_b[15] == 1'b0) begin
                 flag_unsigned <= 1'b1;
             end
         end        
     end
 
-    always @(c_sel) begin // MUX C_SEL
+    always @(c_sel, data_in, ula_out) begin // MUX C_SEL
 
         if(c_sel ==1'b1)begin
             bus_c <= data_in;
@@ -275,12 +283,12 @@ import k_and_s_pkg::*;
 
     end
 
-    always @(branch) begin // MUX BRANCH
+    always @(branch, mem_addr, program_counter) begin // MUX BRANCH
 
         if(branch == 1'b1) begin
             branch_out <= mem_addr;
-        end else begin
-            branch_out <= (program_counter + 1'b1);
+        end else if (branch == 1'b0) begin
+            branch_out <= program_counter + 1;
         end
 
     end
@@ -295,11 +303,11 @@ import k_and_s_pkg::*;
 
     end
 
-    always @(addr_sel) begin  // MUX ADDR_SEL
+    always @(addr_sel, mem_addr, program_counter) begin  // MUX ADDR_SEL
     
         if(addr_sel == 1'b1) begin
             ram_addr <= program_counter;
-        end else begin
+        end else if(addr_sel == 1'b0) begin
             ram_addr <= mem_addr;
         end
 
